@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Status - NovaMind</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .status {
+            font-size: 1.2em;
+            color: #666;
+            margin: 30px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .topic {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        .completed {
+            color: #10b981;
+            font-weight: 600;
+        }
+        .failed {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        .error-details {
+            background: #fee;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+    
+    {% if status.status in ['running', 'starting'] %}
+    <script>
+        // Auto-refresh every 3 seconds while campaign is running
+        setTimeout(function() {
+            location.reload();
+        }, 3000);
+    </script>
+    {% endif %}
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Campaign Status</h1>
+            
+            <div class="topic">
+                "{{ status.topic }}"
+            </div>
+            
+            {% if status.status in ['running', 'starting'] %}
+                <div class="spinner"></div>
+                <div class="status">
+                    🚀 Generating campaign content...<br>
+                    <small>This may take 30-60 seconds</small>
+                </div>
+                <p style="color: #999; font-size: 0.9em; margin-top: 20px;">
+                    Page will auto-refresh...
+                </p>
+            {% elif status.status == 'completed' %}
+                <div style="font-size: 3em; margin: 20px 0;">✅</div>
+                <div class="status completed">
+                    Campaign created successfully!
+                </div>
+                <a href="/campaign/{{ campaign_id }}" class="btn">View Campaign</a>
+            {% elif status.status == 'failed' %}
+                <div style="font-size: 3em; margin: 20px 0;">❌</div>
+                <div class="status failed">
+                    Campaign creation failed
+                </div>
+                {% if status.error %}
+                <div class="error-details">
+                    <strong>Error:</strong><br>
+                    {{ status.error }}
+                </div>
+                {% endif %}
+                <a href="/create" class="btn">Try Again</a>
+            {% elif status.status == 'not_found' %}
+                <div style="font-size: 3em; margin: 20px 0;">❓</div>
+                <div class="status">
+                    Campaign not found
+                </div>
+                <a href="/" class="btn">Back to Dashboard</a>
+            {% else %}
+                <div class="spinner"></div>
+                <div class="status">
+                    Processing... ({{ status.status }})
+                </div>
+            {% endif %}
+            
+            <div style="margin-top: 30px;">
+                <a href="/" style="color: #667eea; text-decoration: none;">← Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
